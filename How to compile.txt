@@ -1,0 +1,2 @@
+Compile with command:
+javac -cp ./mathIT.jar:. project1.java

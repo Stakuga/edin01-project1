@@ -4,10 +4,13 @@
  * @author Louis Copland
  * @author Raquel Perez Lopez
  */
+import java.lang.Math;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.mathIT.numbers.BigNumbers;
+import org.mathIT.numbers.Factors;
+import java.util.*;
 
 public class project1 {
 
@@ -52,9 +55,78 @@ public class project1 {
         // the endeavour pointless.
     }
 
+    public static void ex3() {
+        BigInteger testint = new BigInteger("592");
+        Factors factortree = new Factors(testint);
+        //System.out.println(butz);
+    }
+
+    public static void biglad() {
+        int N = 16637;
+        BigInteger bigprime = new BigInteger("29");
+        int L = 12;
+        int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+        HashMap<Integer, Integer> F = new HashMap<Integer, Integer>(10);
+        for (int i = 0; i < 10; i++) {
+            F.put(primes[i], i);
+        }
+        
+        int[][] M = new int[12][10];
+
+        int r = routput(3, 5, N);
+        double rsquared = Math.pow(r, 2);
+
+        int rsquare = (int)rsquared;
+        int yee = rsquare % N;
+        
+        Factors eff = new Factors(yee);
+
+        if (eff.lastKey().compareTo(bigprime) == 1) {
+            System.out.println("Ah fuck");
+        }
+        else {
+            System.out.println(eff.keySet());
+        }
+
+        BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
+
+        for(int i = 0; i < values.length; i++) {
+            if (F.containsKey(values[i].intValue())) {
+                System.out.println(F.get(values[i].intValue()));
+                M[0][F.get(values[i].intValue())] = 1;
+            }
+        }
+        System.out.println(" ");
+        for (int i = 0; i < M[0].length; i++) {
+            System.out.println(M[0][i]);
+        }
+
+
+        // IN ELSE CLAUSE:
+        // produce matrix row all set to 0
+        // for each key:
+        //      if in F hashmap
+        //      get position and set thing in empty matrix row to 1
+
+        int[] fuck = new int[10];
+
+
+    }
+
+    private static int routput(int j, int k, int N) {
+        double J = j;
+        double K = k;
+        double n = N;
+        double output = Math.sqrt(K * n) + J;
+        int intoutput = (int)output;
+        return intoutput;
+    }
+
     public static void main(String[] args) {
-        ex1();
-        ex2();
+        //ex1();
+        //ex2();
+        //ex3();
+        biglad();
         return;
     }
 }

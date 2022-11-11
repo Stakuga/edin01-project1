@@ -11,6 +11,7 @@ import java.math.RoundingMode;
 import org.mathIT.numbers.BigNumbers;
 import org.mathIT.numbers.Factors;
 import java.util.*;
+import Jama.*;
 
 public class project1 {
 
@@ -71,35 +72,9 @@ public class project1 {
             F.put(primes[i], i);
         }
         
-        int[][] M = new int[12][10];
+        double[][] M = new double[12][10];
 
-        /**int r = routput(3, 5, N);
-        double rsquared = Math.pow(r, 2);
 
-        int rsquare = (int)rsquared;
-        int yee = rsquare % N;
-        
-        Factors eff = new Factors(yee);
-
-        if (eff.lastKey().compareTo(bigprime) == 1) {
-            System.out.println("Ah fuck");
-        }
-        else {
-            System.out.println(eff.keySet());
-        }
-
-        BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
-
-        for(int i = 0; i < values.length; i++) {
-            if (F.containsKey(values[i].intValue())) {
-                System.out.println(F.get(values[i].intValue()));
-                M[0][F.get(values[i].intValue())] = 1;
-            }
-        }
-        System.out.println(" ");
-        for (int i = 0; i < M[0].length; i++) {
-            System.out.println(M[0][i]);
-        }*/
         M[0] = outrow(F, M, N, 2, 3, bigprime);
         M[1] = outrow(F, M, N, 4, 4, bigprime);
         M[2] = outrow(F, M, N, 3, 5, bigprime);
@@ -113,18 +88,17 @@ public class project1 {
         M[10] = outrow(F, M, N, 8, 13, bigprime);
         M[11] = outrow(F, M, N, 8, 14, bigprime);
 
-        for (int i = 0; i < M.length; i++) {
-            for (int j = 0; j < M[i].length; j++) {
-                System.out.print(M[i][j]);
-                System.out.print(" ");
-                if (j == 9) {
-                    System.out.println(" ");
-                }
-            }
-        }
+        Matrix em = new Matrix(M);
+        double[][] line = {{0.}};
+        Matrix A = new Matrix(line);
+        Matrix huh = em.solveTranspose(A);
+        em.print(1, 0);
+        A.print(1, 0);
+        huh.print(1,0);
+
     }
 
-    private static int[] outrow(HashMap<Integer, Integer> F, int[][] M, int N, int j, int k, BigInteger bigprime) {
+    private static double[] outrow(HashMap<Integer, Integer> F, double[][] M, int N, int j, int k, BigInteger bigprime) {
         int r = routput(j, k, N);
         double rsquared = Math.pow(r, 2);
 
@@ -141,7 +115,7 @@ public class project1 {
 
         BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
 
-        int[] row = new int[10];
+        double[] row = new double[10];
 
         for(int i = 0; i < values.length; i++) {
             if (F.containsKey(values[i].intValue())) {
@@ -163,6 +137,21 @@ public class project1 {
         double output = Math.sqrt(K * n) + J;
         int intoutput = (int)output;
         return intoutput;
+    }
+
+    private static class Tuple {
+        private int j;
+        private int k;
+        public Tuple(int j, int k) {
+            this.j = j;
+            this.k = k;
+        }
+        public int getj() {
+            return j;
+        }
+        public int getk() {
+            return k;
+        }
     }
 
     public static void main(String[] args) {

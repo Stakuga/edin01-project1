@@ -73,7 +73,7 @@ public class project1 {
         
         int[][] M = new int[12][10];
 
-        int r = routput(3, 5, N);
+        /**int r = routput(3, 5, N);
         double rsquared = Math.pow(r, 2);
 
         int rsquare = (int)rsquared;
@@ -99,18 +99,61 @@ public class project1 {
         System.out.println(" ");
         for (int i = 0; i < M[0].length; i++) {
             System.out.println(M[0][i]);
+        }*/
+        M[0] = outrow(F, M, N, 2, 3, bigprime);
+        M[1] = outrow(F, M, N, 4, 4, bigprime);
+        M[2] = outrow(F, M, N, 3, 5, bigprime);
+        M[3] = outrow(F, M, N, 4, 5, bigprime);
+        M[4] = outrow(F, M, N, 2, 6, bigprime);
+        M[5] = outrow(F, M, N, 2, 7, bigprime);
+        M[6] = outrow(F, M, N, 6, 10, bigprime);
+        M[7] = outrow(F, M, N, 4, 11, bigprime);
+        M[8] = outrow(F, M, N, 12, 12, bigprime);
+        M[9] = outrow(F, M, N, 4, 13, bigprime);
+        M[10] = outrow(F, M, N, 8, 13, bigprime);
+        M[11] = outrow(F, M, N, 8, 14, bigprime);
+
+        for (int i = 0; i < M.length; i++) {
+            for (int j = 0; j < M[i].length; j++) {
+                System.out.print(M[i][j]);
+                System.out.print(" ");
+                if (j == 9) {
+                    System.out.println(" ");
+                }
+            }
         }
+    }
 
+    private static int[] outrow(HashMap<Integer, Integer> F, int[][] M, int N, int j, int k, BigInteger bigprime) {
+        int r = routput(j, k, N);
+        double rsquared = Math.pow(r, 2);
 
-        // IN ELSE CLAUSE:
-        // produce matrix row all set to 0
-        // for each key:
-        //      if in F hashmap
-        //      get position and set thing in empty matrix row to 1
+        int rsquare = (int)rsquared;
+        int yee = rsquare % N;
+        Factors eff = new Factors(yee);
 
-        int[] fuck = new int[10];
+        /**if (eff.lastKey().compareTo(bigprime) == 1) {
+            System.out.println("Ah fuck");
+        }
+        else {
+            System.out.println(eff.keySet());
+        }*/
 
+        BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
 
+        int[] row = new int[10];
+
+        for(int i = 0; i < values.length; i++) {
+            if (F.containsKey(values[i].intValue())) {
+                //System.out.println(F.get(values[i].intValue()));
+                row[F.get(values[i].intValue())] = 1;
+            }
+        }
+        /**System.out.println(" ");
+        for (int i = 0; i < M[0].length; i++) {
+            System.out.println(M[0][i]);
+        }*/
+        return row;
     }
 
     private static int routput(int j, int k, int N) {

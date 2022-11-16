@@ -89,12 +89,60 @@ public class project1 {
         M[11] = outrow(F, M, N, 8, 14, bigprime);
 
         Matrix em = new Matrix(M);
-        double[][] line = {{0.}};
-        Matrix A = new Matrix(line);
-        Matrix huh = em.solveTranspose(A);
-        em.print(1, 0);
-        A.print(1, 0);
-        huh.print(1,0);
+
+    }
+
+    public static void test() {
+        //int[][] m = {{1,1,0,0},{1,1,0,1},{0,1,1,1},{0,0,1,0},{0,0,0,1}};
+        int[][] m = {{1,1,0,1,0,0,1,0,0,0},
+        {0,0,0,0,0,1,0,0,0,0},
+        {1,0,0,0,1,0,1,0,0,0},
+        {0,1,0,1,1,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,1,1},
+        {1,0,1,1,0,0,1,0,0,0},
+        {0,0,0,0,0,1,1,1,0,0},
+        {1,0,0,0,0,0,1,0,0,0},
+        {1,0,1,0,1,0,0,0,1,0},
+        {1,0,1,0,0,0,0,0,1,0},
+        {1,0,0,0,0,0,0,1,0,0},
+        {1,1,0,1,0,0,0,1,0,0}};
+        int numrows = m.length;
+        int numcolumns = m[0].length;
+        int[] markedrows = new int[numrows];
+
+        for (int i = 0; i < numcolumns; i++) { // for every column index
+            for (int j = 0; j < numrows; j++) { // for every row element in said column
+                if (m[j][i] == 1) { // if we come across a column element equal to 1
+                    markedrows[j] = 1;
+                    for (int k = 0; k < numcolumns; k++) { // for each element in the same row
+                        if (m[j][k] == 1 && k != i) { // if we have a row element that is not the current column AND is 1
+                            // add column i and column k
+                            int[] newcolumn = new int[numrows]; // initialise new empty column
+                            for (int l = 0; l < numrows; l++) {
+                                int number = (m[l][i] + m[l][k]) % 2;
+                                newcolumn[l] = number;
+                            }
+                            for (int l = 0; l < numrows; l++) {
+                                m[l][k] = newcolumn[l];
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[i].length; j++) {
+                System.out.print(m[i][j]);
+                System.out.print(" ");
+            }
+            System.out.println(" ");
+        }
+        for (int i = 0; i < markedrows.length; i++) {
+            System.out.print(markedrows[i]);
+            System.out.print(" ");
+        }
+        System.out.println(" ");
 
     }
 
@@ -106,27 +154,18 @@ public class project1 {
         int yee = rsquare % N;
         Factors eff = new Factors(yee);
 
-        /**if (eff.lastKey().compareTo(bigprime) == 1) {
-            System.out.println("Ah fuck");
-        }
-        else {
-            System.out.println(eff.keySet());
-        }*/
-
         BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
+        Integer[] exponents = eff.values().toArray(new Integer[0]);
 
         double[] row = new double[10];
 
-        for(int i = 0; i < values.length; i++) {
-            if (F.containsKey(values[i].intValue())) {
+        for(int i = 0; i < exponents.length; i++) {
+            if (exponents[i] % 2 != 0) {
                 //System.out.println(F.get(values[i].intValue()));
                 row[F.get(values[i].intValue())] = 1;
             }
         }
-        /**System.out.println(" ");
-        for (int i = 0; i < M[0].length; i++) {
-            System.out.println(M[0][i]);
-        }*/
+
         return row;
     }
 
@@ -158,7 +197,8 @@ public class project1 {
         //ex1();
         //ex2();
         //ex3();
-        biglad();
+        //biglad();
+        test();
         return;
     }
 }

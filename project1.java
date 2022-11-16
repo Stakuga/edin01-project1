@@ -1,5 +1,5 @@
 /**
- * Rough implementation of exercise 1 for 
+ * Rough implementation of exercise 3 for 
  * EDIN01 Project 1.
  * @author Louis Copland
  * @author Raquel Perez Lopez
@@ -16,9 +16,12 @@ public class project1 {
     private static ArrayList<Factors> factorlist = new ArrayList<Factors>();
     private static ArrayList<BigInteger> rvalues = new ArrayList<BigInteger>();
     
-    private static BigInteger N = new BigInteger("3205837387");
-    private static int F = 4000;
-    private static int L = F + 10;
+    //private static BigInteger N = new BigInteger("31741649");
+    //private static BigInteger N = new BigInteger("3205837387"); // Factorised with F=2000 and L=F+200
+    private static BigInteger N = new BigInteger("392742364277");
+
+    private static int F = 2000;
+    private static int L = F + 200;
 
     public static void test() {
         int[][] m = produceMatrix();
@@ -49,18 +52,6 @@ public class project1 {
                 }
             }
         }
-        /*for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[i].length; j++) {
-                System.out.print(m[i][j]);
-                System.out.print(" ");
-            }
-            System.out.println(" ");
-        }
-        for (int i = 0; i < markedrows.length; i++) {
-            System.out.print(markedrows[i]);
-            System.out.print(" ");
-        }
-        System.out.println(" ");*/
 
         // make row sums
         for (int i = 0; i < m.length; i++) {
@@ -122,7 +113,7 @@ public class project1 {
         int[][] matrix = new int[L][F];
 
         int[] primes = producePrimes();
-        int biggestPrime = primes[F - 1];
+        BigInteger biggestPrime = new BigInteger(Integer.toString(primes[F - 1]));
 
         HashMap<Integer, Integer> primeMap = new HashMap<Integer, Integer>(F);
         for (int i = 0; i < F; i++) {
@@ -131,11 +122,12 @@ public class project1 {
 
         int fulfilledRows = 0;
 
-        int j = 0;
-        int k = 0;
+        int j = 1;
+        int k = 1;
 
-        int[] js = {2, 4, 3, 4, 2, 2, 6, 4, 12, 4, 8, 8};
-        int[] ks = {3, 4, 5, 5, 6, 7, 10, 11, 12, 13, 13, 14};
+        //test values
+        double bad = 0.;
+        double good = 0.;
 
         // We want to generate L rows; conversely do something to assign a row L times
 
@@ -144,14 +136,14 @@ public class project1 {
             // do some shit to matrix[fulfilledRows]
 
             Random rand = new Random();
-            j = j + rand.nextInt(3) + 1;
-            k = k + rand.nextInt(3) + 1;
+            int randomValue = rand.nextInt(2);
+            if (randomValue == 1) {
+                j++;
+            }
+            else if (randomValue == 0) {
+                k++;
+            }
 
-            // test - produce j and k 12 times
-
-            //j = js[fulfilledRows];
-            //k = ks[fulfilledRows];
-            
             BigInteger r = routput(j, k, N);
             rvalues.add(r);
     
@@ -164,15 +156,12 @@ public class project1 {
             BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
             Integer[] exponents = factors.values().toArray(new Integer[0]);
 
-            // test to check values length
-            /*if (values.length == 0) {
-                System.out.println(rSquaredModN);
-                System.out.println(factors.toString());
-                System.exit(0);
-            }*/
-
-            if (values[values.length - 1].intValue() > biggestPrime) {
+            if (values[values.length - 1].compareTo(biggestPrime) == 1) {
+                bad = bad + 1.;
                 continue;
+            }
+            else {
+                good = good + 1.;
             }
 
             factorlist.add(factors);
@@ -183,6 +172,22 @@ public class project1 {
                 if (exponents[i] % 2 != 0) {
                     row[primeMap.get(values[i].intValue())] = 1;
                 }
+            }
+            boolean isSame = true;
+            for (int c = 0; c < matrix.length; c++) {
+                int[] matrixRow = matrix[c];
+                int rowSum = 0;
+                int matSum = 0;
+                for (int d = 0; d < row.length; d++) {
+                    matSum = matSum + matrixRow[d];
+                    rowSum = rowSum + row[d];
+                    if (matrixRow[d] != row[d]) {
+                        isSame = false;
+                    }
+                }
+            }
+            if (isSame) {
+                continue;
             }
 
             matrix[fulfilledRows] = row;

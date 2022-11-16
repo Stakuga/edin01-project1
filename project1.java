@@ -15,6 +15,9 @@ import Jama.*;
 
 public class project1 {
 
+    private static ArrayList<Factors> factorlist = new ArrayList<Factors>();
+    private static ArrayList<BigInteger> rvalues = new ArrayList<BigInteger>();
+
     /**
      * Finds the square root of the largest possible 25-digit value, 
      * and determines the number of seconds it would take to test 
@@ -109,6 +112,7 @@ public class project1 {
         int numrows = m.length;
         int numcolumns = m[0].length;
         int[] markedrows = new int[numrows];
+        int[] rowsums = new int[numrows];
 
         for (int i = 0; i < numcolumns; i++) { // for every column index
             for (int j = 0; j < numrows; j++) { // for every row element in said column
@@ -144,15 +148,73 @@ public class project1 {
         }
         System.out.println(" ");
 
+        // make row sums
+        for (int i = 0; i < m.length; i++) {
+            int sum = 0;
+            for (int j = 0; j < m[i].length; j++) {
+                sum = sum + m[i][j];
+            }
+            rowsums[i] = sum;
+        }
+
+        for (int i = 0; i < markedrows.length; i++) {
+            ArrayList<Integer> rowstomultiply = new ArrayList<Integer>();
+            if (markedrows[i] == 0) { // if we find an unmarked row
+                rowstomultiply.add(i);
+                int[] operatingrow = m[i];
+                //System.out.println(i + 1);
+                BigInteger righthand = BigInteger.ONE;
+                BigInteger lefthand = BigInteger.ONE;
+                BigInteger N = new BigInteger("16637");
+                
+                for (int j = 0; j < operatingrow.length; j++) { // find column with 1
+                    if (operatingrow[j] == 1) {
+                        for (int k = 0; k < numrows; k++) { // check across rows with same column = to 1
+                            if (m[k][j] == 1 && rowsums[k] == 1) { // if its a cool row
+                                rowstomultiply.add(k);
+                            }
+                        }
+                    }
+                }
+                // now, for each marked row we find left and right hand sides
+                for (int j = 0; j < rowstomultiply.size(); j++) {
+                    int rownumber = rowstomultiply.get(j);
+                    BigInteger rightvalue = factorlist.get(rownumber).value();
+                    righthand = righthand.multiply(rightvalue);
+                    BigInteger leftvalue = rvalues.get(rownumber);
+                    lefthand = lefthand.multiply(leftvalue);
+                }
+                righthand = righthand.sqrt().mod(N);
+                lefthand = lefthand.mod(N);
+
+                // now, subtract left from right hand side
+
+                BigInteger difference = righthand.subtract(lefthand);
+
+                // find gcd
+                BigInteger gcd = difference.gcd(N);
+
+                if (gcd.compareTo(BigInteger.ONE) != 0) {
+                    System.out.println(gcd);
+                    BigInteger otherFactor = N.divide(gcd);
+                    System.out.println(otherFactor);
+                    break;
+                }
+            }
+        }
+
     }
 
     private static double[] outrow(HashMap<Integer, Integer> F, double[][] M, int N, int j, int k, BigInteger bigprime) {
         int r = routput(j, k, N);
         double rsquared = Math.pow(r, 2);
-
+        
         int rsquare = (int)rsquared;
         int yee = rsquare % N;
+        BigInteger rvalue = new BigInteger(Integer.valueOf(r).toString());
+        rvalues.add(rvalue);
         Factors eff = new Factors(yee);
+        factorlist.add(eff);
 
         BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
         Integer[] exponents = eff.values().toArray(new Integer[0]);
@@ -197,7 +259,7 @@ public class project1 {
         //ex1();
         //ex2();
         //ex3();
-        //biglad();
+        biglad();
         test();
         return;
     }

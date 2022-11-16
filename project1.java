@@ -6,8 +6,6 @@
  */
 import java.lang.Math;
 import java.math.BigInteger;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import org.mathIT.numbers.BigNumbers;
 import org.mathIT.numbers.Factors;
 import java.util.*;
@@ -17,100 +15,16 @@ public class project1 {
 
     private static ArrayList<Factors> factorlist = new ArrayList<Factors>();
     private static ArrayList<BigInteger> rvalues = new ArrayList<BigInteger>();
-
-    /**
-     * Finds the square root of the largest possible 25-digit value, 
-     * and determines the number of seconds it would take to test 
-     * all values up to that value, which is the worst-case scenario. 
-     * Final value is output in terms of hours after conversion.
-     */
-    public static void ex1() {
-        BigInteger biggestvalue = new BigInteger("9999999999999999999999999");
-        BigInteger tenmil = new BigInteger("10000000");
-        BigInteger valuerooted = biggestvalue.sqrt(); // Possibly round up rather than truncate
-        BigInteger numsecs = valuerooted.divide(tenmil);
-        BigInteger hourconversion = new BigInteger("3600");
-        BigInteger numhours = numsecs.divide(hourconversion);
-        System.out.println(numhours);
-    }
-
-    public static void ex2() {
-        BigInteger biggestvalue = new BigInteger("9999999999999999999999999");
-        BigInteger tenmil = new BigInteger("10000000");
-        BigInteger valuerooted = biggestvalue.sqrt(); // Possibly round up rather than truncate
-        BigDecimal decimalrooted = new BigDecimal(valuerooted);
-
-        // Precompute number of primes using approximation by Prime Number Theorem
-        BigDecimal lnx = BigNumbers.ln(decimalrooted);
-        RoundingMode rm1;
-        rm1 = RoundingMode.valueOf("UP");
-        int precision = 20;
-        BigDecimal approx = decimalrooted.divide(lnx, precision, rm1);
-        BigInteger numofprimes = approx.toBigInteger();
-        
-        // Run calculation 
-        BigInteger numsecs = numofprimes.divide(tenmil);
-        BigInteger hourconversion = new BigInteger("3600");
-        BigInteger numhours = numsecs.divide(hourconversion);
-        System.out.println(numhours);
-
-        // We see that the computational time theoretically would be significantly reduced.
-        // But, it would take ages to compute the primes accurately, which could make 
-        // the endeavour pointless.
-    }
-
-    public static void ex3() {
-        BigInteger testint = new BigInteger("592");
-        Factors factortree = new Factors(testint);
-        //System.out.println(butz);
-    }
-
-    public static void biglad() {
-        int N = 16637;
-        BigInteger bigprime = new BigInteger("29");
-        int L = 12;
-        int[] primes = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
-        HashMap<Integer, Integer> F = new HashMap<Integer, Integer>(10);
-        for (int i = 0; i < 10; i++) {
-            F.put(primes[i], i);
-        }
-        
-        double[][] M = new double[12][10];
-
-
-        M[0] = outrow(F, M, N, 2, 3, bigprime);
-        M[1] = outrow(F, M, N, 4, 4, bigprime);
-        M[2] = outrow(F, M, N, 3, 5, bigprime);
-        M[3] = outrow(F, M, N, 4, 5, bigprime);
-        M[4] = outrow(F, M, N, 2, 6, bigprime);
-        M[5] = outrow(F, M, N, 2, 7, bigprime);
-        M[6] = outrow(F, M, N, 6, 10, bigprime);
-        M[7] = outrow(F, M, N, 4, 11, bigprime);
-        M[8] = outrow(F, M, N, 12, 12, bigprime);
-        M[9] = outrow(F, M, N, 4, 13, bigprime);
-        M[10] = outrow(F, M, N, 8, 13, bigprime);
-        M[11] = outrow(F, M, N, 8, 14, bigprime);
-
-        Matrix em = new Matrix(M);
-
-    }
+    
+    private static BigInteger N = new BigInteger("3205837387");
+    private static int F = 4000;
+    private static int L = F + 10;
 
     public static void test() {
-        //int[][] m = {{1,1,0,0},{1,1,0,1},{0,1,1,1},{0,0,1,0},{0,0,0,1}};
-        int[][] m = {{1,1,0,1,0,0,1,0,0,0},
-        {0,0,0,0,0,1,0,0,0,0},
-        {1,0,0,0,1,0,1,0,0,0},
-        {0,1,0,1,1,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,1,1},
-        {1,0,1,1,0,0,1,0,0,0},
-        {0,0,0,0,0,1,1,1,0,0},
-        {1,0,0,0,0,0,1,0,0,0},
-        {1,0,1,0,1,0,0,0,1,0},
-        {1,0,1,0,0,0,0,0,1,0},
-        {1,0,0,0,0,0,0,1,0,0},
-        {1,1,0,1,0,0,0,1,0,0}};
-        int numrows = m.length;
-        int numcolumns = m[0].length;
+        int[][] m = produceMatrix();
+
+        int numrows = L;
+        int numcolumns = F;
         int[] markedrows = new int[numrows];
         int[] rowsums = new int[numrows];
 
@@ -135,7 +49,7 @@ public class project1 {
                 }
             }
         }
-        for (int i = 0; i < m.length; i++) {
+        /*for (int i = 0; i < m.length; i++) {
             for (int j = 0; j < m[i].length; j++) {
                 System.out.print(m[i][j]);
                 System.out.print(" ");
@@ -146,7 +60,7 @@ public class project1 {
             System.out.print(markedrows[i]);
             System.out.print(" ");
         }
-        System.out.println(" ");
+        System.out.println(" ");*/
 
         // make row sums
         for (int i = 0; i < m.length; i++) {
@@ -165,7 +79,6 @@ public class project1 {
                 //System.out.println(i + 1);
                 BigInteger righthand = BigInteger.ONE;
                 BigInteger lefthand = BigInteger.ONE;
-                BigInteger N = new BigInteger("16637");
                 
                 for (int j = 0; j < operatingrow.length; j++) { // find column with 1
                     if (operatingrow[j] == 1) {
@@ -205,62 +118,113 @@ public class project1 {
 
     }
 
-    private static double[] outrow(HashMap<Integer, Integer> F, double[][] M, int N, int j, int k, BigInteger bigprime) {
-        int r = routput(j, k, N);
-        double rsquared = Math.pow(r, 2);
-        
-        int rsquare = (int)rsquared;
-        int yee = rsquare % N;
-        BigInteger rvalue = new BigInteger(Integer.valueOf(r).toString());
-        rvalues.add(rvalue);
-        Factors eff = new Factors(yee);
-        factorlist.add(eff);
+    public static int[][] produceMatrix() {
+        int[][] matrix = new int[L][F];
 
-        BigInteger[] values = eff.keySet().toArray(new BigInteger[0]);
-        Integer[] exponents = eff.values().toArray(new Integer[0]);
+        int[] primes = producePrimes();
+        int biggestPrime = primes[F - 1];
 
-        double[] row = new double[10];
+        HashMap<Integer, Integer> primeMap = new HashMap<Integer, Integer>(F);
+        for (int i = 0; i < F; i++) {
+            primeMap.put(primes[i], i);
+        }
 
-        for(int i = 0; i < exponents.length; i++) {
-            if (exponents[i] % 2 != 0) {
-                //System.out.println(F.get(values[i].intValue()));
-                row[F.get(values[i].intValue())] = 1;
+        int fulfilledRows = 0;
+
+        int j = 0;
+        int k = 0;
+
+        int[] js = {2, 4, 3, 4, 2, 2, 6, 4, 12, 4, 8, 8};
+        int[] ks = {3, 4, 5, 5, 6, 7, 10, 11, 12, 13, 13, 14};
+
+        // We want to generate L rows; conversely do something to assign a row L times
+
+        // while we fulfilledRows != L;
+        while (fulfilledRows != L) {
+            // do some shit to matrix[fulfilledRows]
+
+            Random rand = new Random();
+            j = j + rand.nextInt(3) + 1;
+            k = k + rand.nextInt(3) + 1;
+
+            // test - produce j and k 12 times
+
+            //j = js[fulfilledRows];
+            //k = ks[fulfilledRows];
+            
+            BigInteger r = routput(j, k, N);
+            rvalues.add(r);
+    
+            BigInteger rSquaredModN = r.modPow(BigInteger.TWO, N);
+            if (rSquaredModN.compareTo(BigInteger.ONE) != 1) {
+                continue;
             }
+            
+            Factors factors = new Factors(rSquaredModN);
+            BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
+            Integer[] exponents = factors.values().toArray(new Integer[0]);
+
+            // test to check values length
+            /*if (values.length == 0) {
+                System.out.println(rSquaredModN);
+                System.out.println(factors.toString());
+                System.exit(0);
+            }*/
+
+            if (values[values.length - 1].intValue() > biggestPrime) {
+                continue;
+            }
+
+            factorlist.add(factors);
+    
+            int[] row = new int[F];
+    
+            for(int i = 0; i < exponents.length; i++) {
+                if (exponents[i] % 2 != 0) {
+                    row[primeMap.get(values[i].intValue())] = 1;
+                }
+            }
+
+            matrix[fulfilledRows] = row;
+
+            fulfilledRows = fulfilledRows + 1;
         }
 
-        return row;
+        return matrix;
     }
 
-    private static int routput(int j, int k, int N) {
-        double J = j;
-        double K = k;
-        double n = N;
-        double output = Math.sqrt(K * n) + J;
-        int intoutput = (int)output;
-        return intoutput;
+    private static BigInteger routput(int j, int k, BigInteger N) {
+        String jString = Integer.toString(j);
+        BigInteger jBigInt = new BigInteger(jString);
+
+        String kString = Integer.toString(k);
+        BigInteger kBigInt = new BigInteger(kString);
+
+        BigInteger kN = kBigInt.multiply(N);
+        BigInteger kNsqrt = kN.sqrt();
+        BigInteger output = kNsqrt.add(jBigInt);
+
+        return output;
     }
 
-    private static class Tuple {
-        private int j;
-        private int k;
-        public Tuple(int j, int k) {
-            this.j = j;
-            this.k = k;
+    /**
+     * Produces the first F primes.
+     * @return int[] array representing factorbase.
+     */
+    private static int[] producePrimes() {
+        int[] output = new int[F];
+        BigInteger prime = BigInteger.ONE;
+        for (int i = 0; i < F; i++) {
+            prime = prime.nextProbablePrime();
+            int nextPrime = prime.intValue();
+            output[i] = nextPrime;
         }
-        public int getj() {
-            return j;
-        }
-        public int getk() {
-            return k;
-        }
+        return output;
     }
 
     public static void main(String[] args) {
-        //ex1();
-        //ex2();
-        //ex3();
-        biglad();
         test();
+
         return;
     }
 }

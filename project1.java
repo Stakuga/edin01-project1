@@ -18,16 +18,19 @@ public class project1 {
     
     //private static BigInteger N = new BigInteger("31741649");
     //private static BigInteger N = new BigInteger("3205837387"); // Factorised with F=2000 and L=F+200
-    private static BigInteger N = new BigInteger("392742364277");
+    //private static BigInteger N = new BigInteger("392742364277");
+    private static BigInteger N = new BigInteger("145968946107052219367611");
+    //private static BigInteger N = new BigInteger("87463");
 
-    private static int F = 2000;
-    private static int L = F + 200;
+    private static int F = 1000;
+    private static int L = 10;
 
     public static void test() {
         int[][] m = produceMatrix();
+        System.out.println("Matrix produced.");
 
-        int numrows = L;
-        int numcolumns = F;
+        int numrows = m.length;
+        int numcolumns = m[0].length;
         int[] markedrows = new int[numrows];
         int[] rowsums = new int[numrows];
 
@@ -80,7 +83,7 @@ public class project1 {
                         }
                     }
                 }
-                // now, for each marked row we find left and right hand sides
+                // now, for each unmarked row we find left and right hand sides
                 for (int j = 0; j < rowstomultiply.size(); j++) {
                     int rownumber = rowstomultiply.get(j);
                     BigInteger rightvalue = factorlist.get(rownumber).value();
@@ -95,29 +98,32 @@ public class project1 {
 
                 BigInteger difference = righthand.subtract(lefthand);
 
+
                 // find gcd
                 BigInteger gcd = difference.gcd(N);
 
-                if (gcd.compareTo(BigInteger.ONE) != 0) {
+                if (gcd.compareTo(BigInteger.ONE) != 0 && gcd.compareTo(N) != 0) {
                     System.out.println(gcd);
                     BigInteger otherFactor = N.divide(gcd);
                     System.out.println(otherFactor);
+                    System.exit(0);
                     break;
                 }
             }
         }
-
+        System.out.println("nup");
     }
 
     public static int[][] produceMatrix() {
-        int[][] matrix = new int[L][F];
+        ArrayList<BigInteger> primes = producePrimes();
 
-        int[] primes = producePrimes();
-        BigInteger biggestPrime = new BigInteger(Integer.toString(primes[F - 1]));
+        int[][] matrix = new int[primes.size() + L][primes.size()];
 
-        HashMap<Integer, Integer> primeMap = new HashMap<Integer, Integer>(F);
-        for (int i = 0; i < F; i++) {
-            primeMap.put(primes[i], i);
+        BigInteger biggestPrime = primes.get(primes.size() - 1);
+
+        HashMap<BigInteger, Integer> primeMap = new HashMap<BigInteger, Integer>(primes.size());
+        for (int i = 0; i < primes.size(); i++) {
+            primeMap.put(primes.get(i), i);
         }
 
         int fulfilledRows = 0;
@@ -125,72 +131,63 @@ public class project1 {
         int j = 1;
         int k = 1;
 
-        //test values
-        double bad = 0.;
-        double good = 0.;
+        double good = 0;
+        double bad = 0;
+
+        BigInteger[] tSquaredArray = N.sqrtAndRemainder();
+        BigInteger a;
+        if (tSquaredArray[1].compareTo(BigInteger.ZERO) == 0) {
+            a = tSquaredArray[0];
+        }
+        else {
+            a = N.sqrt().add(BigInteger.ONE);
+        }
 
         // We want to generate L rows; conversely do something to assign a row L times
 
         // while we fulfilledRows != L;
-        while (fulfilledRows != L) {
+        while (fulfilledRows != (primes.size() + L)) {
             // do some shit to matrix[fulfilledRows]
 
-            Random rand = new Random();
-            int randomValue = rand.nextInt(2);
-            if (randomValue == 1) {
-                j++;
-            }
-            else if (randomValue == 0) {
-                k++;
-            }
+            BigInteger fA = a.pow(2).subtract(N);
 
-            BigInteger r = routput(j, k, N);
-            rvalues.add(r);
-    
-            BigInteger rSquaredModN = r.modPow(BigInteger.TWO, N);
-            if (rSquaredModN.compareTo(BigInteger.ONE) != 1) {
+            Factors factors = new Factors(fA);
+            Collection<BigInteger> values = factors.keySet();
+            BigInteger[] valuesArray = factors.keySet().toArray(new BigInteger[0]);
+            BigInteger biggestFactor = valuesArray[valuesArray.length - 1];
+            //System.out.println(factors.toString());
+            //System.out.println("Biggest factor is " + biggestFactor);
+            //System.out.println("Biggest prime is " + biggestPrime);
+            if (!(biggestPrime.compareTo(biggestFactor) == 1 | biggestPrime.compareTo(biggestFactor) == 0)) {
+                a = a.add(BigInteger.ONE);
+                bad++;
+                System.out.println(good/(good + bad) * 100 + " good rows is " + fulfilledRows);
                 continue;
             }
-            
-            Factors factors = new Factors(rSquaredModN);
-            BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
+
             Integer[] exponents = factors.values().toArray(new Integer[0]);
+            HashSet<BigInteger> factorbase = new HashSet(primes);
 
-            if (values[values.length - 1].compareTo(biggestPrime) == 1) {
-                bad = bad + 1.;
-                continue;
-            }
-            else {
-                good = good + 1.;
-            }
-
-            factorlist.add(factors);
-    
-            int[] row = new int[F];
-    
-            for(int i = 0; i < exponents.length; i++) {
-                if (exponents[i] % 2 != 0) {
-                    row[primeMap.get(values[i].intValue())] = 1;
-                }
-            }
-            boolean isSame = true;
-            for (int c = 0; c < matrix.length; c++) {
-                int[] matrixRow = matrix[c];
-                int rowSum = 0;
-                int matSum = 0;
-                for (int d = 0; d < row.length; d++) {
-                    matSum = matSum + matrixRow[d];
-                    rowSum = rowSum + row[d];
-                    if (matrixRow[d] != row[d]) {
-                        isSame = false;
+            if (factorbase.containsAll(values)) { // then fucken add the cunt
+                good++;
+                System.out.println(good/(good + bad) * 100 + " good rows is " + fulfilledRows);
+                rvalues.add(a);
+                factorlist.add(factors);
+                int[] row = new int[primes.size()];
+                for(int i = 0; i < exponents.length; i++) { // check this
+                    if (exponents[i] % 2 != 0) {
+                        row[primeMap.get(values.toArray()[i])] = 1;
                     }
                 }
+                matrix[fulfilledRows] = row;
+                a = a.add(BigInteger.ONE);
             }
-            if (isSame) {
+            else { // it ought to be skipped
+                bad++;
+                System.out.println(good/(good + bad) * 100 + " good rows is " + fulfilledRows);
+                a = a.add(BigInteger.ONE);
                 continue;
             }
-
-            matrix[fulfilledRows] = row;
 
             fulfilledRows = fulfilledRows + 1;
         }
@@ -216,14 +213,26 @@ public class project1 {
      * Produces the first F primes.
      * @return int[] array representing factorbase.
      */
-    private static int[] producePrimes() {
-        int[] output = new int[F];
+    private static ArrayList<BigInteger> producePrimes() {
+        ArrayList<BigInteger> output = new ArrayList<BigInteger>();
         BigInteger prime = BigInteger.ONE;
         for (int i = 0; i < F; i++) {
             prime = prime.nextProbablePrime();
-            int nextPrime = prime.intValue();
-            output[i] = nextPrime;
+            if (prime.compareTo(BigInteger.TWO) == 0) { // case of prime == 2
+                output.add(prime);
+                continue;
+            }
+            BigInteger pMinusOne = prime.subtract(BigInteger.ONE);
+            BigInteger pMinusOneOverTwo = pMinusOne.divide(BigInteger.TWO);
+            BigInteger fin = N.modPow(pMinusOneOverTwo, prime);
+            if (fin.compareTo(BigInteger.ONE) != 0) {
+                continue;
+            }
+            else {
+                output.add(prime);
+            }
         }
+
         return output;
     }
 

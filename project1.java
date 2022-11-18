@@ -27,7 +27,7 @@ public class project1 {
     private static BigInteger N = new BigInteger("145968946107052219367611");
     //private static BigInteger N = new BigInteger("92434447339770015548544881401");
 
-    private static int F = 500;
+    private static int F = 1000;
     private static int L = F + 10;
 
 
@@ -38,10 +38,10 @@ public class project1 {
      * Final value is output in terms of hours after conversion.
      */
     public static void exercise1() {
-        BigInteger biggestvalue = new BigInteger("9999999999999999999999999");
+        BigInteger ten = new BigInteger("10");
+        BigInteger biggestvalue = ten.pow(12);
         BigInteger tenmil = new BigInteger("10000000");
-        BigInteger valuerooted = biggestvalue.sqrt(); 
-        BigInteger numsecs = valuerooted.divide(tenmil);
+        BigInteger numsecs = biggestvalue.divide(tenmil);
         BigInteger hourconversion = new BigInteger("3600");
         BigInteger numhours = numsecs.divide(hourconversion);
         System.out.println(numhours);

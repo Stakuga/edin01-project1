@@ -13,15 +13,16 @@ import Jama.*;
 
 public class project1 {
 
-    private static ArrayList<Factors> factorlist = new ArrayList<Factors>();
+    private static ArrayList<BigInteger> factorlist = new ArrayList<BigInteger>();
     private static ArrayList<BigInteger> rvalues = new ArrayList<BigInteger>();
     
     //private static BigInteger N = new BigInteger("31741649");
     //private static BigInteger N = new BigInteger("3205837387"); // Factorised with F=2000 and L=F+200
-    private static BigInteger N = new BigInteger("392742364277");
+    //private static BigInteger N = new BigInteger("392742364277");
+    private static BigInteger N = new BigInteger("145968946107052219367611");
 
-    private static int F = 2000;
-    private static int L = F + 200;
+    private static int F = 1000;
+    private static int L = F + 50;
 
     public static void test() {
         int[][] m = produceMatrix();
@@ -83,12 +84,12 @@ public class project1 {
                 // now, for each marked row we find left and right hand sides
                 for (int j = 0; j < rowstomultiply.size(); j++) {
                     int rownumber = rowstomultiply.get(j);
-                    BigInteger rightvalue = factorlist.get(rownumber).value();
+                    BigInteger rightvalue = factorlist.get(rownumber);
                     righthand = righthand.multiply(rightvalue);
                     BigInteger leftvalue = rvalues.get(rownumber);
                     lefthand = lefthand.multiply(leftvalue);
                 }
-                righthand = righthand.sqrt().mod(N);
+                righthand = righthand.sqrt().mod(N); // check this
                 lefthand = lefthand.mod(N);
 
                 // now, subtract left from right hand side
@@ -98,7 +99,7 @@ public class project1 {
                 // find gcd
                 BigInteger gcd = difference.gcd(N);
 
-                if (gcd.compareTo(BigInteger.ONE) != 0) {
+                if (gcd.compareTo(BigInteger.ONE) != 0 && gcd.compareTo(N) != 0) {
                     System.out.println(gcd);
                     BigInteger otherFactor = N.divide(gcd);
                     System.out.println(otherFactor);
@@ -122,78 +123,122 @@ public class project1 {
 
         int fulfilledRows = 0;
 
-        int j = 1;
-        int k = 1;
+
 
         //test values
-        double bad = 0.;
+        int bad = 0;
         double good = 0.;
 
         // We want to generate L rows; conversely do something to assign a row L times
 
-        // while we fulfilledRows != L;
-        while (fulfilledRows != L) {
-            // do some shit to matrix[fulfilledRows]
-
-            Random rand = new Random();
-            int randomValue = rand.nextInt(2);
-            if (randomValue == 1) {
-                j++;
+        for (int k = 1; k <= Integer.MAX_VALUE; k++) {
+            if (fulfilledRows == L) {
+                break;
             }
-            else if (randomValue == 0) {
-                k++;
-            }
-
-            BigInteger r = routput(j, k, N);
-            rvalues.add(r);
-    
-            BigInteger rSquaredModN = r.modPow(BigInteger.TWO, N);
-            if (rSquaredModN.compareTo(BigInteger.ONE) != 1) {
-                continue;
-            }
-            
-            Factors factors = new Factors(rSquaredModN);
-            BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
-            Integer[] exponents = factors.values().toArray(new Integer[0]);
-
-            if (values[values.length - 1].compareTo(biggestPrime) == 1) {
-                bad = bad + 1.;
-                continue;
-            }
-            else {
-                good = good + 1.;
-            }
-
-            factorlist.add(factors);
-    
-            int[] row = new int[F];
-    
-            for(int i = 0; i < exponents.length; i++) {
-                if (exponents[i] % 2 != 0) {
-                    row[primeMap.get(values[i].intValue())] = 1;
+            for (int j = 1; j <= k; j++) {
+                if (fulfilledRows == L) {
+                    break;
                 }
-            }
-            boolean isSame = true;
-            for (int c = 0; c < matrix.length; c++) {
-                int[] matrixRow = matrix[c];
-                int rowSum = 0;
-                int matSum = 0;
-                for (int d = 0; d < row.length; d++) {
-                    matSum = matSum + matrixRow[d];
-                    rowSum = rowSum + row[d];
-                    if (matrixRow[d] != row[d]) {
-                        isSame = false;
+
+
+                BigInteger r = routput(j, k, N);
+    
+                BigInteger rSquaredModN = r.modPow(BigInteger.TWO, N);
+    
+                BigInteger factorTest = rSquaredModN;
+                if (rSquaredModN.compareTo(BigInteger.ONE) != 1) {
+                    continue;
+                }
+                //System.out.println("Testing new r value");
+                //System.out.println(rSquaredModN);
+                boolean isSmooth = false; // check if number is smooth
+    
+                int[] exponentArray = new int[primes.length];
+                boolean divisible = true;
+                while (divisible == true && isSmooth == false) {
+                    for (int a = 0; a < primes.length; a++) {
+                        //System.out.println("Next factor is " + primes[a]);
+                        //System.out.println(factorTest);
+                        int primeNumber = primes[a];
+                        BigInteger bigIntPrime = new BigInteger(Integer.toString(primeNumber));
+                        if (factorTest.mod(bigIntPrime).compareTo(BigInteger.ZERO) == 0) {
+                            exponentArray[a]++;
+                            //System.out.println("incremenetd exponent array" + a);
+                            factorTest = factorTest.divide(bigIntPrime);
+                            //System.out.println(factorTest);
+                        }
+                        if (factorTest.compareTo(BigInteger.ONE) == 0) {
+                            isSmooth = true;
+                            break;
+                        }
+                        if (a == (primes.length - 1) && factorTest.mod(bigIntPrime).compareTo(BigInteger.ZERO) != 0) {
+                            divisible = false;
+                        }
                     }
                 }
+    
+                if (isSmooth == false) {
+                    //bad++;
+                    //System.out.println("Bad row");
+                    //System.out.println(bad);
+                    continue;
+                }
+    
+                rvalues.add(r);
+                
+                /*Factors factors = new Factors(rSquaredModN);
+                System.out.println(factors.toString());
+                System.out.println(biggestPrime);
+                BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
+                Integer[] exponents = factors.values().toArray(new Integer[0]);
+    
+                if (values[values.length - 1].compareTo(biggestPrime) == 1) {
+                    bad = bad + 1.;
+                    continue;
+                }
+                else {
+                    good = good + 1.;
+                }
+    
+                factorlist.add(factors);*/
+    
+                factorlist.add(rSquaredModN);
+        
+                int[] row = new int[F];
+                for (int a = 0; a < row.length; a++) {
+                    row[a] = exponentArray[a] % 2;
+                }
+        
+                /*for(int i = 0; i < exponents.length; i++) {
+                    if (exponents[i] % 2 != 0) {
+                        row[primeMap.get(values[i].intValue())] = 1;
+                    }
+                }*/
+                boolean isSame = true;
+                for (int c = 0; c < matrix.length; c++) {
+                    int[] matrixRow = matrix[c];
+                    int rowSum = 0;
+                    int matSum = 0;
+                    for (int d = 0; d < row.length; d++) {
+                        matSum = matSum + matrixRow[d];
+                        rowSum = rowSum + row[d];
+                        if (matrixRow[d] != row[d]) {
+                            isSame = false;
+                        }
+                    }
+                }
+                if (isSame) {
+                    continue;
+                }
+    
+                matrix[fulfilledRows] = row;
+    
+                fulfilledRows = fulfilledRows + 1;
+                System.out.println("Row successfully made!");
+                System.out.println(fulfilledRows);
             }
-            if (isSame) {
-                continue;
-            }
-
-            matrix[fulfilledRows] = row;
-
-            fulfilledRows = fulfilledRows + 1;
         }
+        // while we fulfilledRows != L;
 
         return matrix;
     }

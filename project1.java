@@ -1,30 +1,92 @@
+import java.lang.Math;
+import java.math.*;
+import org.mathIT.numbers.BigNumbers;
+import java.util.*;
+
 /**
- * Rough implementation of exercise 3 for 
- * EDIN01 Project 1.
+ * Implementation of exercises 1, 2 and 3 
+ * for EDIN01 project 1.
+ * Each exercise is run by a corresponding method 
+ * that is static to the 'project 1' class.
  * @author Louis Copland
  * @author Raquel Perez Lopez
  */
-import java.lang.Math;
-import java.math.BigInteger;
-import org.mathIT.numbers.BigNumbers;
-import org.mathIT.numbers.Factors;
-import java.util.*;
-import Jama.*;
-
 public class project1 {
 
     private static ArrayList<BigInteger> factorlist = new ArrayList<BigInteger>();
     private static ArrayList<BigInteger> rvalues = new ArrayList<BigInteger>();
     
+    /*
+     * N, F and L values are changed or 
+     * commented/uncommented as appropriate.
+     */
+
     //private static BigInteger N = new BigInteger("31741649");
-    //private static BigInteger N = new BigInteger("3205837387"); // Factorised with F=2000 and L=F+200
+    //private static BigInteger N = new BigInteger("3205837387");
     //private static BigInteger N = new BigInteger("392742364277");
     private static BigInteger N = new BigInteger("145968946107052219367611");
+    //private static BigInteger N = new BigInteger("92434447339770015548544881401");
 
-    private static int F = 1000;
-    private static int L = F + 50;
+    private static int F = 500;
+    private static int L = F + 10;
 
-    public static void test() {
+
+    /**
+     * Finds the square root of the largest possible 25-digit value, 
+     * and determines the number of seconds it would take to test 
+     * all values up to that value, which is the worst-case scenario. 
+     * Final value is output in terms of hours after conversion.
+     */
+    public static void exercise1() {
+        BigInteger biggestvalue = new BigInteger("9999999999999999999999999");
+        BigInteger tenmil = new BigInteger("10000000");
+        BigInteger valuerooted = biggestvalue.sqrt(); 
+        BigInteger numsecs = valuerooted.divide(tenmil);
+        BigInteger hourconversion = new BigInteger("3600");
+        BigInteger numhours = numsecs.divide(hourconversion);
+        System.out.println(numhours);
+    }
+
+    public static void exercise2() {
+        BigInteger biggestvalue = new BigInteger("9999999999999999999999999");
+        BigInteger tenmil = new BigInteger("10000000");
+        BigInteger valuerooted = biggestvalue.sqrt(); 
+        BigDecimal decimalrooted = new BigDecimal(valuerooted);
+
+        // Precompute number of primes using 
+        // approximation by Prime Number Theorem
+        BigDecimal lnx = BigNumbers.ln(decimalrooted);
+        RoundingMode rm1;
+        rm1 = RoundingMode.valueOf("UP");
+        int precision = 20;
+        BigDecimal approx = decimalrooted.divide(lnx, precision, rm1);
+        BigInteger numofprimes = approx.toBigInteger();
+        
+        // Run calculation 
+        BigInteger numsecs = numofprimes.divide(tenmil);
+        BigInteger hourconversion = new BigInteger("3600");
+        BigInteger numhours = numsecs.divide(hourconversion);
+        System.out.println(numhours);
+    }
+
+    public static void exercise3() {
+        gaussian();
+    }
+
+    /**
+     * Runs Gaussian elimination on the 
+     * binary matrix produced by produceMatrix().
+     * Solutions to the Gaussian elimination 
+     * correspond to relation rows that can be 
+     * multiplied together to create perfect squares 
+     * of the form x^2 = y^2modN.
+     * GCD(y - x, N) is then calculated, and if the 
+     * result is unique (i.e. not 1 or N) then a factor 
+     * (factor 1) of N is calculated. Factor 2 is also 
+     * calculated by dividing N by factor 1, and these 
+     * results are printed.
+     */
+    public static void gaussian() {
         int[][] m = produceMatrix();
 
         int numrows = L;
@@ -32,14 +94,19 @@ public class project1 {
         int[] markedrows = new int[numrows];
         int[] rowsums = new int[numrows];
 
-        for (int i = 0; i < numcolumns; i++) { // for every column index
-            for (int j = 0; j < numrows; j++) { // for every row element in said column
-                if (m[j][i] == 1) { // if we come across a column element equal to 1
+        /*
+         * This for loop demarcates a Gaussian elimination 
+         * method described by the paper 'A Fast Algorithm 
+         * for Gaussian Elimination over GF(2)'.
+         * https://www.cs.umd.edu/~gasarch/TOPICS/factoring/fastgauss.pdf
+         */
+        for (int i = 0; i < numcolumns; i++) { 
+            for (int j = 0; j < numrows; j++) { 
+                if (m[j][i] == 1) { 
                     markedrows[j] = 1;
-                    for (int k = 0; k < numcolumns; k++) { // for each element in the same row
-                        if (m[j][k] == 1 && k != i) { // if we have a row element that is not the current column AND is 1
-                            // add column i and column k
-                            int[] newcolumn = new int[numrows]; // initialise new empty column
+                    for (int k = 0; k < numcolumns; k++) { 
+                        if (m[j][k] == 1 && k != i) { 
+                            int[] newcolumn = new int[numrows]; 
                             for (int l = 0; l < numrows; l++) {
                                 int number = (m[l][i] + m[l][k]) % 2;
                                 newcolumn[l] = number;
@@ -54,7 +121,13 @@ public class project1 {
             }
         }
 
-        // make row sums
+        /*
+         * Determine sums of matrix rows 
+         * following initial Gaussian 
+         * elimination process.
+         * Matrix rows with sum equal to 1 
+         * must have only 1 index equal to 1.
+         */
         for (int i = 0; i < m.length; i++) {
             int sum = 0;
             for (int j = 0; j < m[i].length; j++) {
@@ -63,25 +136,38 @@ public class project1 {
             rowsums[i] = sum;
         }
 
+        /*
+         * The Gaussian elimination process involves 
+         * finding 'unmarked' rows, which are then 
+         * linearly dependent on some other rows. 
+         * These other rows are found, and altogether 
+         * these correspond to the relations that can 
+         * be multiplied together to produce a relation 
+         * of the form x^2 = y^2modN.
+         */
         for (int i = 0; i < markedrows.length; i++) {
             ArrayList<Integer> rowstomultiply = new ArrayList<Integer>();
-            if (markedrows[i] == 0) { // if we find an unmarked row
+            if (markedrows[i] == 0) {
                 rowstomultiply.add(i);
                 int[] operatingrow = m[i];
-                //System.out.println(i + 1);
                 BigInteger righthand = BigInteger.ONE;
                 BigInteger lefthand = BigInteger.ONE;
                 
-                for (int j = 0; j < operatingrow.length; j++) { // find column with 1
+                for (int j = 0; j < operatingrow.length; j++) { 
                     if (operatingrow[j] == 1) {
-                        for (int k = 0; k < numrows; k++) { // check across rows with same column = to 1
-                            if (m[k][j] == 1 && rowsums[k] == 1) { // if its a cool row
+                        for (int k = 0; k < numrows; k++) { 
+                            if (m[k][j] == 1 && rowsums[k] == 1) { 
                                 rowstomultiply.add(k);
                             }
                         }
                     }
                 }
-                // now, for each marked row we find left and right hand sides
+
+                /*
+                 * Determine x (left-hand value) and y 
+                 * (right-hand value) for relation of 
+                 * form x^2 = y^2modN.
+                 */
                 for (int j = 0; j < rowstomultiply.size(); j++) {
                     int rownumber = rowstomultiply.get(j);
                     BigInteger rightvalue = factorlist.get(rownumber);
@@ -89,14 +175,13 @@ public class project1 {
                     BigInteger leftvalue = rvalues.get(rownumber);
                     lefthand = lefthand.multiply(leftvalue);
                 }
-                righthand = righthand.sqrt().mod(N); // check this
+                righthand = righthand.sqrt().mod(N); 
                 lefthand = lefthand.mod(N);
 
-                // now, subtract left from right hand side
-
+                // Determine difference between x and y.
                 BigInteger difference = righthand.subtract(lefthand);
 
-                // find gcd
+                // Determine GCD.
                 BigInteger gcd = difference.gcd(N);
 
                 if (gcd.compareTo(BigInteger.ONE) != 0 && gcd.compareTo(N) != 0) {
@@ -110,27 +195,36 @@ public class project1 {
 
     }
 
+    /**
+     * For some specified factor base F 
+     * and L, and some given N, outputs a 
+     * binary matrix where each row corresponds 
+     * to the factor decomposition of some 
+     * value r^2modN that is smooth over F.
+     * Each index in each row corresponds to 
+     * the exponent value of the factor 
+     * decomposition, with odd exponents equal 
+     * to 1 and even exponents equal to 0.
+     * @return A 2D binary matrix.
+     */
     public static int[][] produceMatrix() {
         int[][] matrix = new int[L][F];
 
         int[] primes = producePrimes();
         BigInteger biggestPrime = new BigInteger(Integer.toString(primes[F - 1]));
 
-        HashMap<Integer, Integer> primeMap = new HashMap<Integer, Integer>(F);
-        for (int i = 0; i < F; i++) {
-            primeMap.put(primes[i], i);
-        }
-
         int fulfilledRows = 0;
 
-
-
-        //test values
-        int bad = 0;
-        double good = 0.;
-
-        // We want to generate L rows; conversely do something to assign a row L times
-
+        /*
+         * For varying values of j and k, 
+         * numbers are generated and then 'sieved' 
+         * over the factor base, i.e. accepted numbers 
+         * are those that can be factored over the 
+         * factor base.
+         * L numbers are produced so that a suitable 
+         * number of solutions present following 
+         * Gaussian elimination.
+         */
         for (int k = 1; k <= Integer.MAX_VALUE; k++) {
             if (fulfilledRows == L) {
                 break;
@@ -140,32 +234,26 @@ public class project1 {
                     break;
                 }
 
-
+                // Produce values of the form r^2modN.
                 BigInteger r = routput(j, k, N);
-    
                 BigInteger rSquaredModN = r.modPow(BigInteger.TWO, N);
-    
                 BigInteger factorTest = rSquaredModN;
+
                 if (rSquaredModN.compareTo(BigInteger.ONE) != 1) {
                     continue;
                 }
-                //System.out.println("Testing new r value");
-                //System.out.println(rSquaredModN);
-                boolean isSmooth = false; // check if number is smooth
-    
+
+                // Check if r^2modN is smooth over factor base.
+                boolean isSmooth = false; 
                 int[] exponentArray = new int[primes.length];
                 boolean divisible = true;
                 while (divisible == true && isSmooth == false) {
                     for (int a = 0; a < primes.length; a++) {
-                        //System.out.println("Next factor is " + primes[a]);
-                        //System.out.println(factorTest);
                         int primeNumber = primes[a];
                         BigInteger bigIntPrime = new BigInteger(Integer.toString(primeNumber));
                         if (factorTest.mod(bigIntPrime).compareTo(BigInteger.ZERO) == 0) {
                             exponentArray[a]++;
-                            //System.out.println("incremenetd exponent array" + a);
                             factorTest = factorTest.divide(bigIntPrime);
-                            //System.out.println(factorTest);
                         }
                         if (factorTest.compareTo(BigInteger.ONE) == 0) {
                             isSmooth = true;
@@ -178,42 +266,19 @@ public class project1 {
                 }
     
                 if (isSmooth == false) {
-                    //bad++;
-                    //System.out.println("Bad row");
-                    //System.out.println(bad);
                     continue;
                 }
     
                 rvalues.add(r);
-                
-                /*Factors factors = new Factors(rSquaredModN);
-                System.out.println(factors.toString());
-                System.out.println(biggestPrime);
-                BigInteger[] values = factors.keySet().toArray(new BigInteger[0]);
-                Integer[] exponents = factors.values().toArray(new Integer[0]);
-    
-                if (values[values.length - 1].compareTo(biggestPrime) == 1) {
-                    bad = bad + 1.;
-                    continue;
-                }
-                else {
-                    good = good + 1.;
-                }
-    
-                factorlist.add(factors);*/
-    
                 factorlist.add(rSquaredModN);
         
+                // Produce binary row corresponding 
+                // to exponents.
                 int[] row = new int[F];
                 for (int a = 0; a < row.length; a++) {
                     row[a] = exponentArray[a] % 2;
                 }
         
-                /*for(int i = 0; i < exponents.length; i++) {
-                    if (exponents[i] % 2 != 0) {
-                        row[primeMap.get(values[i].intValue())] = 1;
-                    }
-                }*/
                 boolean isSame = true;
                 for (int c = 0; c < matrix.length; c++) {
                     int[] matrixRow = matrix[c];
@@ -232,17 +297,24 @@ public class project1 {
                 }
     
                 matrix[fulfilledRows] = row;
-    
                 fulfilledRows = fulfilledRows + 1;
-                System.out.println("Row successfully made!");
-                System.out.println(fulfilledRows);
             }
         }
-        // while we fulfilledRows != L;
 
         return matrix;
     }
 
+    /**
+     * Produces r value corresponding to 
+     * formula r = (k * N) ^ 0.5 + j.
+     * @param j An integer corresponding 
+     * to j in the formula.
+     * @param k An integer corresponding 
+     * to k in the formula.
+     * @param j A BigInteger corresponding 
+     * to N in the formula.
+     * @return BigInteger The formula output.
+     */
     private static BigInteger routput(int j, int k, BigInteger N) {
         String jString = Integer.toString(j);
         BigInteger jBigInt = new BigInteger(jString);
@@ -272,9 +344,13 @@ public class project1 {
         return output;
     }
 
+    /**
+     * Driver function for program.
+     */
     public static void main(String[] args) {
-        test();
-
+        //exercise1();
+        //exercise2();
+        exercise3();
         return;
     }
 }
